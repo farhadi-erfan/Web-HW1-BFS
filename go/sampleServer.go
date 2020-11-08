@@ -6,8 +6,7 @@ import (
 	"log"
     "fmt"
     "net/http"
-	"crypto/sha1"
-    "encoding/base64"
+	"crypto/sha256"
 	"strconv"
 	"strings"
 	"encoding/json"
@@ -43,11 +42,9 @@ func handlerSha(w http.ResponseWriter, r *http.Request) {
 
 func hashIt(n1 int, n2 int) []byte {
 	var n = n1 + n2
-	s := strconv.Itoa(n)
-	bv := []byte(s) 
-	hasher := sha1.New()
-    hasher.Write(bv)
-    sha := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
+	s := strconv.Itoa(n)	
+    shaa := sha256.Sum256([]byte(s))
+	sha := fmt.Sprintf("%x", shaa)
 	resObj := &result{ Result: sha }
 	res, _ := json.Marshal(resObj)
 	return res
@@ -70,12 +67,13 @@ func handlerWrite(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	content, _ := ioutil.ReadFile("../text.txt")
+	content, _ := ioutil.ReadFile("/root/server/text.txt")
 	text := string(content)
 	lines = strings.Split(text, "\n")
+	fmt.Println("start")
     http.HandleFunc("/go/sha256", handlerSha)
 	http.HandleFunc("/go/write", handlerWrite)
-    log.Fatal(http.ListenAndServe(":8080", nil))
+    log.Fatal(http.ListenAndServe(":8082", nil))
 }
 
 

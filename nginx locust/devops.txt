@@ -1,0 +1,57 @@
+nginx:
+
+location /go {
+	proxy_set_header Host $host;
+	proxy_set_header X-Real-IP $remote_addr;
+	proxy_pass http://192.168.43.173:8080;
+}
+
+location /node {
+	proxy_set_header Host $host;
+	proxy_set_header X-Real-IP $remote_addr;
+	proxy_pass http://192.168.43.173:8081;
+}
+-----------
+SELinux:
+
+dnf install setools-console
+yum install policycoreutils-python-utils
+yum provides /usr/sbin/semanage
+semanage port -l | grep http_port_t
+semanage port -a -t http_port_t -p tcp 3000
+--------------
+node-app.service:
+
+[Unit]
+Description=node-app
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=2s
+#Environment=PORT=80
+#Environment=GIN_MODE=release
+ExecStart=/usr/bin/node /root/server/nodejs/sampleServer.js
+
+[Install]
+WantedBy=multi-user.target
+--------------
+go-app.service:
+
+[Unit]
+Description=go-app
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=2s
+#Environment=PORT=80
+#Environment=GIN_MODE=release
+ExecStart=/root/server/go/sampleServer
+
+[Install]
+WantedBy=multi-user.target
+-------------
+systemctl enable node-sample
+systemctl start node-sample
+journalctl -u node-app

@@ -4,12 +4,12 @@ var fs = require('fs');
 var crypto = require('crypto');
 
 var app = express();
-var port = process.env.PORT || 8080;
+var port = process.env.PORT || 8081;
 app.use(bodyParser.json());
 
 var lines = null
 
-fs.readFile('../text.txt', 'utf8', function(err, data) {
+fs.readFile('/root/server/text.txt', 'utf8', function(err, data) {
     if (err) throw err;
     lines = data.split(/\r?\n/);
 });
@@ -32,7 +32,7 @@ app.post('/nodejs/sha256', function(req, res) {
 	if ((typeof n1) != "number" || (typeof n2) != "number") {
 		res.status(400).send('invalid numbers')
 	} else {
-		var hash = crypto.createHash('sha256').update((n1 + n2).toString()).digest('base64');
+		var hash = crypto.createHash('sha256').update((n1 + n2).toString()).digest('hex');
 		res.type('json');
 		res.end(JSON.stringify({result: hash}));
 	}
